@@ -1,9 +1,12 @@
 # The Zone API
+
+https://zonervwebapp-ewh2fvcfbxdfbgdb.australiacentral-01.azurewebsites.net/
+
 **Read the API documentation before trying using it**, there are a few quirks of the system that can have a large effect on your queries that need to be considered as well as explanations on the data structure and features of the API.
 
 Access to the API is limited by IP address (for now) and can only be accessed onsite (if you need offsite access email liam.thompson@zonerv.com.au).
 
- - The easiest way to use the API is through the documentation page by going to an end point and pressing the 'test response' button, however the functionality is limited and can cause some syntax highlighting issues with large responses.
+ - The easiest way to use the API is through the [documentation page](https://zonervwebapp-ewh2fvcfbxdfbgdb.australiacentral-01.azurewebsites.net/api-docs/) by going to an end point and pressing the 'test response' button, however the functionality is limited and can cause some syntax highlighting issues with large responses.
  - For a better experience download the OpenApi Document at the top of the page and import it into [Postman](https://www.postman.com/downloads/) as collection.
  - The best option is through the C# nuget packages available on GitHub (access is restricted read the instructions below) make sure to read the [documentation](https://github.com/ZoneRV/ZoneRV.Client) as well.
 
