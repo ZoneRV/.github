@@ -54,7 +54,7 @@ jobs:
       
       
       - name: Run nuget-license
-        run: nuget-license -t -i ${{ GITHUB_WORKSPACE }}/${{ inputs.solution-path }} -a ./allowed-licenses.json -ignore ./ignored-packages.json -o Markdown | tee license-report.md      
+        run: nuget-license -t -i ${{ inputs.solution-path }} -a ./allowed-licenses.json -ignore ./ignored-packages.json -o Markdown | tee license-report.md      
       
       - name: Add report to job summary
         shell: bash
