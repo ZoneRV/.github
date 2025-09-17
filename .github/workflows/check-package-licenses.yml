@@ -42,9 +42,7 @@ jobs:
             "MIT",
             "Apache-2.0",
             "BSD-2-Clause",
-            "BSD-3-Clause",
-            "ISC",
-            "MPL-2.0"
+            "BSD-3-Clause"
           ]
           EOF
           
@@ -52,7 +50,11 @@ jobs:
         shell: bash
         run: |
           cat > ./ignored-packages.json <<'EOF'
-          [ ]
+          [
+            "ZoneRV.*",
+            "Microsoft.*",
+            "System.*"
+          ]
           EOF
             
       - name: Run nuget-license
