@@ -28,6 +28,9 @@ jobs:
       - name: Add internal nuget source
         run: dotnet nuget add source 'https://nuget.pkg.github.com/ZoneRv/index.json' -n 'Zone Github' -u ${{ vars.OWNER_USERNAME}} -p ${{ secrets.GIT_PACKAGE_API_KEY }} --store-password-in-clear-text
         
+      - name: Restore Dotnet
+        run: dotnet restore
+        
       - name: Install nuget-license
         run: dotnet tool install --global nuget-license
       
@@ -51,8 +54,7 @@ jobs:
           cat > ./ignored-packages.json <<'EOF'
           [ ]
           EOF
-      
-      
+            
       - name: Run nuget-license
         run: nuget-license -t -i ${{ inputs.solution-path }} -a ./allowed-licenses.json -ignore ./ignored-packages.json -o Markdown | tee license-report.md      
       
