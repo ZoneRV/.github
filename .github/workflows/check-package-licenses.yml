@@ -57,11 +57,14 @@ jobs:
             "Microsoft.*",
             "System.*",
             "*.runtime.native.System.Security.Cryptography.OpenSsl",
+            "*.runtime.native.System.Security.Cryptography.Apple",
+            "runtime.native.System.Security.Cryptography.*",
             "Bogus",
             "AutoBogus",
             "Hangfire.*",
             "Serilog.Enrichers.Context",
-            "Serilog.Sinks.AzureAnalytics"
+            "Serilog.Sinks.AzureLogAnalytics",
+            "Fractions"
           ]
           EOF
             
