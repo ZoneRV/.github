@@ -31,39 +31,34 @@ jobs:
 
       - name: Add internal nuget source
         run: dotnet nuget add source 'https://nuget.pkg.github.com/ZoneRv/index.json' -n 'Zone Github' -u ${{ vars.OWNER_USERNAME}} -p ${{ secrets.GIT_PACKAGE_API_KEY }} --store-password-in-clear-text
-  
-      - name: Restore
-        run: dotnet restore
         
       - name: Install nuget-license
         run: dotnet tool install --global nuget-license
-        
+      
       - name: Prepare license config files (create if missing)
         shell: bash
         run: |
+          set -euo pipefail
+
           if [ ! -f allowed-licenses.json ]; then
-            cat > allowed-licenses.json << 'JSON'
-            {
-              "allowed": [
-                "MIT",
-                "Apache-2.0",
-                "BSD-2-Clause",
-                "BSD-3-Clause"
-              ]
-            }
-            JSON
+            printf '%s\n' \
+              '{' \
+              '  "allowed": [' \
+              '    "MIT",' \
+              '    "Apache-2.0",' \
+              '    "BSD-2-Clause",' \
+              '    "BSD-3-Clause"' \
+              '  ]' \
+              '}' > allowed-licenses.json
           fi
-          
+
           if [ ! -f ignored-packages.json ]; then
-            cat > ignored-packages.json << 'JSON'
-            [
-              "ZoneRV.*",
-              "Microsoft.*".
-              "System.*"
-            ]
-            JSON
+            printf '%s\n' \
+              '[' \
+              '  "Example.Ignored.Package"' \
+              ']' > ignored-packages.json
           fi
-      
+
       - name: Run nuget-license
         run: nuget-license -t -i ${{ inputs.solution-path }} -a allowed-licenses.json -ignore ignored-packages.json -o Markdown | tee license-report.md      
       
