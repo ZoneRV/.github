@@ -7,17 +7,13 @@ on:
         type: string
         required: false
         default: '9.0.x'
-      os:
-        type: string
-        required: false
-        default: 'ubuntu-latest'
       solution-path:
         type: string
         required: true
 
 jobs:
   build:
-    runs-on: ${{ inputs.os }}
+    runs-on: 'ubuntu-latest'
     permissions:
       contents: read
     steps:
@@ -58,7 +54,7 @@ jobs:
       
       
       - name: Run nuget-license
-        run: nuget-license -t -i ${{ inputs.solution-path }} -a ./allowed-licenses.json -ignore ./ignored-packages.json -o Markdown | tee license-report.md      
+        run: nuget-license -t -i ${{ GITHUB_WORKSPACE }}/${{ inputs.solution-path }} -a ./allowed-licenses.json -ignore ./ignored-packages.json -o Markdown | tee license-report.md      
       
       - name: Add report to job summary
         shell: bash
