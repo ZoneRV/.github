@@ -35,32 +35,30 @@ jobs:
       - name: Install nuget-license
         run: dotnet tool install --global nuget-license
       
-      - name: Prepare license config files (create if missing)
+      - name: Prepare allowed license config files
         shell: bash
         run: |
-          set -euo pipefail
-
-          if [ ! -f allowed-licenses.json ]; then
-            printf '%s\n' \
-              '{' \
-              '  "allowed": [' \
-              '    "MIT",' \
-              '    "Apache-2.0",' \
-              '    "BSD-2-Clause",' \
-              '    "BSD-3-Clause"' \
-              '  ]' \
-              '}' > allowed-licenses.json
-          fi
-
-          if [ ! -f ignored-packages.json ]; then
-            printf '%s\n' \
-              '[' \
-              '  "Example.Ignored.Package"' \
-              ']' > ignored-packages.json
-          fi
-
+          cat > ./allowed-licenses.json <<'EOF'
+          [
+            "MIT",
+            "Apache-2.0",
+            "BSD-2-Clause",
+            "BSD-3-Clause",
+            "ISC",
+            "MPL-2.0"
+          ]
+          EOF
+          
+      - name: Prepare ignored package config files
+        shell: bash
+        run: |
+          cat > ./ignored-packages.json <<'EOF'
+          [ ]
+          EOF
+      
+      
       - name: Run nuget-license
-        run: nuget-license -t -i ${{ inputs.solution-path }} -a allowed-licenses.json -ignore ignored-packages.json -o Markdown | tee license-report.md      
+        run: nuget-license -t -i ${{ inputs.solution-path }} -a ./allowed-licenses.json -ignore ./ignored-packages.json -o Markdown | tee license-report.md      
       
       - name: Add report to job summary
         shell: bash
