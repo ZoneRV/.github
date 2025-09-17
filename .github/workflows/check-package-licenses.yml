@@ -1,0 +1,92 @@
+﻿name: check-package-licenses.yml
+
+on:
+  workflow_call: 
+    inputs:
+      dotnet-version:
+        type: string
+        required: false
+        default: '9.0.x'
+      os:
+        type: string
+        required: false
+        default: 'ubuntu-latest'
+      solution-path:
+        type: string
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{ inputs.os }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Add internal nuget source
+        run: dotnet nuget add source 'https://nuget.pkg.github.com/ZoneRv/index.json' -n 'Zone Github' -u ${{ vars.OWNER_USERNAME}} -p ${{ secrets.GIT_PACKAGE_API_KEY }} --store-password-in-clear-text
+  
+      - name: Restore
+        run: dotnet restore
+        
+      - name: Install nuget-license
+        run: dotnet tool install --global nuget-license
+        
+      - name: Prepare license config files (create if missing)
+        shell: bash
+        run: |
+          if [ ! -f allowed-licenses.json ]; then
+            cat > allowed-licenses.json << 'JSON'
+            {
+              "allowed": [
+                "MIT",
+                "Apache-2.0",
+                "BSD-2-Clause",
+                "BSD-3-Clause"
+              ]
+            }
+            JSON
+          fi
+          
+          if [ ! -f ignored-packages.json ]; then
+            cat > ignored-packages.json << 'JSON'
+            [
+              "ZoneRV.*",
+              "Microsoft.*".
+              "System.*"
+            ]
+            JSON
+          fi
+      
+      - name: Run nuget-license
+        run: nuget-license -t -i ${{ inputs.solution-path }} -a allowed-licenses.json -ignore ignored-packages.json -o Markdown | tee license-report.md      
+      
+      - name: Add report to job summary
+        shell: bash
+        run: |
+          {
+          echo "## NuGet license report"
+          echo
+          cat license-report.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if Error column present
+        shell: bash
+        run: |
+          if grep -Eqi '\|[[:space:]]*Error[[:space:]]*\|' license-report.md; then
+            echo "Detected disallowed license types in report."
+            exit 1
+          fi
+
+      - name: Upload license report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.md
