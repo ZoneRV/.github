@@ -53,7 +53,8 @@ jobs:
           [
             "ZoneRV.*",
             "Microsoft.*",
-            "System.*"
+            "System.*",
+            "Bogus"
           ]
           EOF
             
