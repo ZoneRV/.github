@@ -46,7 +46,7 @@ jobs:
           ]
           EOF
           
-        # hangfire have a licensing teir and a private nuget server
+        # hangfire have a licensing tier and a private nuget server
         # Any other package is either ours, limited to microsoft ownership only, or the license is set up incorrectly and i checked and it was fine at the time of adding it.
       - name: Prepare ignored package config files
         shell: bash
@@ -58,7 +58,7 @@ jobs:
             "System.*",
             "*.runtime.native.System.Security.Cryptography.OpenSsl",
             "*.runtime.native.System.Security.Cryptography.Apple",
-            "runtime.native.System.Security.Cryptography.*",
+            "runtime*",
             "Bogus",
             "AutoBogus",
             "Hangfire.*",
