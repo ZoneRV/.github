@@ -64,7 +64,8 @@ jobs:
             "Hangfire.*",
             "Serilog.Enrichers.Context",
             "Serilog.Sinks.AzureLogAnalytics",
-            "Fractions"
+            "Fractions",
+            "xunit.abstractions"
           ]
           EOF
             
