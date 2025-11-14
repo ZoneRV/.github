@@ -42,7 +42,8 @@ jobs:
             "MIT",
             "Apache-2.0",
             "BSD-2-Clause",
-            "BSD-3-Clause"
+            "BSD-3-Clause",
+            "GPL-2.0-only WITH Universal-FOSS-exception-1.0"
           ]
           EOF
           
@@ -65,7 +66,9 @@ jobs:
             "Serilog.Enrichers.Context",
             "Serilog.Sinks.AzureLogAnalytics",
             "Fractions",
-            "xunit.abstractions"
+            "xunit.abstractions",
+            "K4os.*",
+            "NETStandard.Library"
           ]
           EOF
             
