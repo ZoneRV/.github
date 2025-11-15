@@ -1,0 +1,81 @@
+﻿name: run-tests.yml
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        type: string
+        required: true
+      assembly-filters:
+        type: string
+        required: true
+      file-filters:
+        type: string
+        required: true
+    secrets:
+      GIT_PACKAGE_API_KEY:
+        required: true
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Add internal nuget source
+        run: dotnet nuget add source 'https://nuget.pkg.github.com/ZoneRv/index.json' -n 'Zone Github' -u ${{ vars.OWNER_USERNAME}} -p ${{ secrets.GIT_PACKAGE_API_KEY }} --store-password-in-clear-text
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --logger:"xunit;LogFileName={assembly}/test_result.xml" --results-directory "test_results" /p:CollectCoverage=true --collect:"XPlat Code Coverage"
+
+      - name: Combine Coverage Reports # This is because one report is produced per project, and we want one result for all of them.
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
+        if: github.event_name == 'pull_request' && (!cancelled())
+        with:
+          reports: "**/*.cobertura.xml"
+          targetdir: "${{ github.workspace }}"
+          reporttypes: "Cobertura"
+          verbosity: "Info"
+          title: "Code Coverage"
+          tag: "${{ github.run_number }}_${{ github.run_id }}"
+          toolpath: "reportgeneratortool"
+          assemblyfilters: ${{ inputs.assembly-filters}}
+          filefilters: ${{ inputs.file-filters }}
+
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        if: github.event_name == 'pull_request' && (!cancelled())
+        with:
+          filename: "Cobertura.xml"
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: file
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: github.event_name == 'pull_request' && always()
+        with:
+          files: |
+            **/test_result.xml
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request' && (!cancelled())
+        with:
+          path: code-coverage-results.md

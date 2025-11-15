@@ -1,0 +1,43 @@
+﻿name: test-and-push.yml
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      GIT_PACKAGE_API_KEY:
+        required: true
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Add internal nuget source
+        run: dotnet nuget add source 'https://nuget.pkg.github.com/ZoneRv/index.json' -n 'Zone Github' -u ${{ vars.OWNER_USERNAME}} -p ${{ secrets.GIT_PACKAGE_API_KEY }} --store-password-in-clear-text
+
+      - name: Build
+        run: dotnet build --configuration Release /p:Version=${{ inputs.version }}
+
+      - name: Run tests
+        run: dotnet test --configuration Release /p:Version=${{ inputs.version }} --no-build
+
+      - name: Push
+        run: dotnet nuget push **\*.nupkg --skip-duplicate -s 'https://nuget.pkg.github.com/ZoneRv/index.json' -k ${{ secrets.GIT_PACKAGE_API_KEY }}
