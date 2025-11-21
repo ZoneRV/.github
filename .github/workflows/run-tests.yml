@@ -10,7 +10,11 @@ on:
         required: true
       file-filters:
         type: string
-        required: true
+        required: false
+      test-logger:
+        type: string
+        required: false
+        default: 'xunit'
     secrets:
       GIT_PACKAGE_API_KEY:
         required: true
@@ -42,9 +46,9 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Run tests
-        run: dotnet test --configuration Release --no-build --logger:"xunit;LogFileName={assembly}/test_result.xml" --results-directory "test_results" /p:CollectCoverage=true --collect:"XPlat Code Coverage"
+        run: dotnet test --configuration Release --no-build --logger:"${{ inputs.test-logger }};LogFileName={assembly}/test_result.xml" --results-directory "test_results" /p:CollectCoverage=true --collect:"XPlat Code Coverage"
 
-      - name: Combine Coverage Reports # This is because one report is produced per project, and we want one result for all of them.
+      - name: Combine Coverage Reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
         if: github.event_name == 'pull_request' && (!cancelled())
         with:
@@ -55,7 +59,7 @@ jobs:
           title: "Code Coverage"
           tag: "${{ github.run_number }}_${{ github.run_id }}"
           toolpath: "reportgeneratortool"
-          assemblyfilters: ${{ inputs.assembly-filters}}
+          assemblyfilters: ${{ inputs.assembly-filters }}
           filefilters: ${{ inputs.file-filters }}
 
       - name: Code Coverage Report
