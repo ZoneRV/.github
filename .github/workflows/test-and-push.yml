@@ -43,5 +43,8 @@ jobs:
       - name: Run tests
         run: dotnet test --configuration Release /p:Version=${{ inputs.version }} --no-build
 
+      - name: Pack
+        run: dotnet pack /p:Version=${{ inputs.version }} --no-build
+
       - name: Push
         run: dotnet nuget push **\*.nupkg --skip-duplicate -s 'https://nuget.pkg.github.com/ZoneRv/index.json' -k ${{ secrets.GIT_PACKAGE_API_KEY }}
